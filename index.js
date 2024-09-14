@@ -10,6 +10,7 @@ let notificationSound = null;
 const defaultSettings = {
     enabled: true,
     playSound: false,
+    webhookUrl: 'http://192.168.50.228:5555', // MacBook IP address
 };
 
 function loadSettings() {
@@ -21,22 +22,21 @@ function loadSettings() {
     
     $('#gennotif_enabled').prop('checked', extension_settings[extensionName].enabled);
     $('#gennotif_sound').prop('checked', extension_settings[extensionName].playSound);
+    $('#gennotif_webhook').val(extension_settings[extensionName].webhookUrl);
 }
 
-function showNotification(message) {
+function sendWebhookNotification(message) {
     if (!extension_settings[extensionName].enabled) return;
 
-    if ("Notification" in window) {
-        if (Notification.permission === "granted") {
-            new Notification("SillyTavern", { body: message });
-        } else if (Notification.permission !== "denied") {
-            Notification.requestPermission().then(function (permission) {
-                if (permission === "granted") {
-                    new Notification("SillyTavern", { body: message });
-                }
-            });
-        }
-    }
+    fetch(extension_settings[extensionName].webhookUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: message }),
+    })
+    .then(response => console.log('Webhook notification sent'))
+    .catch(error => console.error('Error sending webhook notification:', error));
 
     if (extension_settings[extensionName].playSound && notificationSound) {
         notificationSound.play();
@@ -46,6 +46,7 @@ function showNotification(message) {
 function onSettingsChange() {
     extension_settings[extensionName].enabled = $('#gennotif_enabled').prop('checked');
     extension_settings[extensionName].playSound = $('#gennotif_sound').prop('checked');
+    extension_settings[extensionName].webhookUrl = $('#gennotif_webhook').val();
 }
 
 // This function is called when the extension is loaded
@@ -66,13 +67,17 @@ jQuery(async () => {
                     <input id="gennotif_sound" type="checkbox" />
                     Play sound
                 </label>
+                <label>
+                    Webhook URL:
+                    <input id="gennotif_webhook" type="text" class="text_pole" />
+                </label>
             </div>
         </div>
     </div>`;
 
     $('#extensions_settings2').append(settingsHtml);
     
-    $('#gennotif_enabled, #gennotif_sound').on('change', onSettingsChange);
+    $('#gennotif_enabled, #gennotif_sound, #gennotif_webhook').on('change', onSettingsChange);
 
     loadSettings();
     
@@ -81,6 +86,6 @@ jQuery(async () => {
 
     // Listen for the message generation end event
     eventSource.on(event_types.GENERATION_ENDED, function (data) {
-        showNotification("A new message has been generated!");
+        sendWebhookNotification("A new message has been generated!");
     });
 });
