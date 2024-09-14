@@ -7,5 +7,6 @@
     "css": "style.css",
     "author": "@masonc15",
     "version": "1.0.0",
-    "homePage": "https://github.com/masonc15/Sillytaver-GenNotif"
+    "homePage": "https://github.com/masonc15/Sillytavern-GenNotif",
+    "auto_update": true
 }
