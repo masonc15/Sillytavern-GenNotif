@@ -35,7 +35,13 @@ function sendWebhookNotification(message) {
         },
         body: JSON.stringify({ message: message }),
     })
-    .then(response => console.log('Webhook notification sent'))
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text();
+    })
+    .then(text => console.log('Webhook notification sent:', text))
     .catch(error => console.error('Error sending webhook notification:', error));
 
     if (extension_settings[extensionName].playSound && notificationSound) {
