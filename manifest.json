@@ -1,0 +1,11 @@
+{
+    "display_name": "GenNotif",
+    "loading_order": 16,
+    "requires": [],
+    "optional": [],
+    "js": "index.js",
+    "css": "style.css",
+    "author": "@masonc15",
+    "version": "1.0.0",
+    "homePage": "https://github.com/masonc15/Sillytaver-GenNotif"
+}
